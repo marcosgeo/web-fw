@@ -1,2 +1,2 @@
 # web-fw
-a web framework in python
+learning how to build a web framework in python.
