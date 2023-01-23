@@ -8,13 +8,13 @@ app = API()
 
 @app.route("/home")
 def home(request, response):
-    response.text = "Hello from the HOME page"
+    response.text = "\nHello from the HOME page\n\n"
     
 
 
 @app.route("/about")
 def about(request, response):
-    response.text = "Hello from the ABOUT page"
+    response.text = "\nHello from the ABOUT page\n\n"
 
 
 @app.route("/hello/{name}")
