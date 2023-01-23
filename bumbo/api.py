@@ -1,4 +1,6 @@
 # api.py
+
+from parse import parse
 from webob import Request, Response
 
 
@@ -8,9 +10,7 @@ class API:
 
     def __call__(self, environ, start_response):
         request = Request(environ)
-        
         response = self.handle_request(request)
-
         return response(environ, start_response)
 
     def route(self, path):
@@ -25,17 +25,19 @@ class API:
     
     def handle_request(self, request):
         response = Response()
-        
-        handler = self.find_handler(request_path=request.path)
+
+        handler, kwargs = self.find_handler(request_path=request.path)
         if handler is not None:
-            handler(request, response)
+            handler(request, response, **kwargs)
         else:
             self.default_response(response)
         return response
 
     def find_handler(self, request_path):
         for path, handler in self.routes.items():
-            if path == request_path:
-                return handler
+            parse_result = parse(path, request_path)
+            if parse_result is not None:
+                return handler, parse_result.named
+        return None, None
 
 
