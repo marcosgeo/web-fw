@@ -1,8 +1,11 @@
 # api.py
 
 import inspect
+
 from parse import parse
 from webob import Request, Response
+from requests import Session as RequestsSession
+from wsgiadapter import WSGIAdapter as RequestsWSGIAdapter
 
 
 class API:
@@ -49,3 +52,7 @@ class API:
             self.default_response(response)
         return response
 
+    def test_session(self, base_url="http://testserver"):
+        session = RequestsSession()
+        session.mount(prefix=base_url, adapter=RequestsWSGIAdapter(self))
+        return session
