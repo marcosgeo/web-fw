@@ -43,7 +43,8 @@ class API:
             if inspect.isclass(handler):
                 handler = getattr(handler(), request.method.lower(), None)
                 if handler is None:
-                    self.default_response(response)
+                    raise AttributeError("Method not found")
+                    #self.default_response(response)
                 else:
                     handler(request, response, **kwargs)
             else:

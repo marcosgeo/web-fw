@@ -30,3 +30,53 @@ def test_route_overlap_throws_exception(api):
             resp.text = "YOLO"
 
 
+def test_parametrized_route(api, client):
+    @api.route("/{name}")
+    def hello(req, resp, name):
+        resp.text = f"hey {name}"
+    
+    assert client.get("http://testserver/matthew").text == "hey matthew"
+    assert client.get("http://testserver/ashley").text == "hey ashley"
+
+
+def test_default_404_response(client):
+    response = client.get("http://testserver/doesnotexist")
+    
+    assert response.status_code == 404
+    assert response.text == "\nNot found.\n\n"
+
+
+def test_class_based_handler_get(api, client):
+    response_text = "this is a get request"
+    
+    @api.route("/book")
+    class BookResource:
+        def get(self, req, resp):
+            resp.text = response_text
+    
+    assert client.get("http://testserver/book").text == response_text
+
+
+def test_class_based_handler_post(api, client):
+    response_text = "this is a post request"
+    
+    @api.route("/book")
+    class BookResource:
+        def post(self, req, resp):
+            resp.text = response_text
+    
+    assert client.post("http://testserver/book").text == response_text
+
+
+
+def test_class_based_handler_not_allowed_method(api, client):
+    @api.route("/book")
+    class BookResource:
+        def post(self, req, resp):
+            resp.text = "yolo"
+    
+    with pytest.raises(AttributeError):
+        client.get("http://testserver/book")
+
+
+
