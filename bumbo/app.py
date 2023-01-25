@@ -6,6 +6,12 @@ from bumbo.api import API
 app = API()
 
 
+def custom_exception_handler(request, response, exception_cls):
+    response.text = str(exception_cls)
+
+app.add_exception_handler(custom_exception_handler)
+
+
 @app.route("/home")
 def home(request, response):
     response.text = "\nHello from the HOME page\n\n"
@@ -54,5 +60,9 @@ def template_handler(req, resp):
     resp.body = app.template(
         "index.html", context={"name": "Bumbo", "title": "Best Framework"}
     ).encode()
+
+@app.route("/exception")
+def exception_throwing_handler(request, response):
+    raise AssertionError("\nThis handler should not be used.\n\n")
 
 
