@@ -1,22 +1,33 @@
 # api.py
 
+import os
 import inspect
 
 from parse import parse
 from webob import Request, Response
 from requests import Session as RequestsSession
 from wsgiadapter import WSGIAdapter as RequestsWSGIAdapter
+from jinja2 import Environment, FileSystemLoader
 
 
 class API:
-    def __init__(self):
+    def __init__(self, templates_dir="bumbo/templates"):
         self.routes = {}
+
+        self.templates_env = Environment(
+            loader=FileSystemLoader(os.path.abspath(templates_dir))
+        )
 
     def __call__(self, environ, start_response):
         request = Request(environ)
         response = self.handle_request(request)
         return response(environ, start_response)
-    
+
+    def template(self, template_name, context=None):
+        if context is None:
+            context = {}
+        return self.templates_env.get_template(template_name).render(**context)
+
     # django-like route
     def add_route(self, path, handler):
         assert path not in self.routes, "Such route already exists."
