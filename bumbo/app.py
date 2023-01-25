@@ -43,3 +43,9 @@ class BookResource:
         response.text = "\nEnpoint to delete a book\n\n"
 
 
+def handler(req, resp):
+    resp.text = "\nDjango-like handler\n\n"
+
+app.add_route("/sample", handler)
+
+
