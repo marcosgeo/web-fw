@@ -8,10 +8,11 @@ from webob import Request, Response
 from requests import Session as RequestsSession
 from wsgiadapter import WSGIAdapter as RequestsWSGIAdapter
 from jinja2 import Environment, FileSystemLoader
+from whitenoise import WhiteNoise
 
 
 class API:
-    def __init__(self, templates_dir="bumbo/templates"):
+    def __init__(self, templates_dir="bumbo/templates", static_dir="bumbo/static"):
         self.routes = {}
 
         self.templates_env = Environment(
@@ -20,7 +21,12 @@ class API:
 
         self.exception_handler = None
 
+        self.whitenoise = WhiteNoise(self.wsgi_app, root=static_dir)
+
     def __call__(self, environ, start_response):
+        return self.whitenoise(environ, start_response)
+
+    def wsgi_app(self, environ, start_response):
         request = Request(environ)
         response = self.handle_request(request)
         return response(environ, start_response)
