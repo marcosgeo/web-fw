@@ -3,9 +3,10 @@
 import pytest
 
 from bumbo.api import API
+from bumbo.middleware import Middleware
 
 FILE_DIR = "css"
-FILE_NAME = "main.css"
+FILE_NAME = "test_main.css"
 FILE_CONTENTS = "body {background-color: red}"
 
 
@@ -19,20 +20,6 @@ def _create_static(static_dir):
 
 
 # tests
-
-def test_assets_are_served(tmpdir_factory):  # tmpdir_factory is a pytest buitl-in
-    # given: create a static file
-    static_dir = tmpdir_factory.mktemp("static")
-    _create_static(static_dir)
-    api = API(static_dir=str(static_dir))
-    client = api.test_session()
-
-    # when
-    response = client.get(f"http://testserver/{FILE_DIR}/{FILE_NAME}")
-
-    # than
-    assert response.status_code == 200
-    assert response.text == FILE_CONTENTS
 
 
 def test_bumbo_test_client_can_send_requests(api, client):
@@ -62,7 +49,7 @@ def test_route_overlap_throws_exception(api):
             resp.text = "YOLO"
 
 
-def test_parametrized_route(api, client):
+def test_parameterized_route(api, client):
     @api.route("/{name}")
     def hello(req, resp, name):
         resp.text = f"hey {name}"
@@ -152,7 +139,50 @@ def test_custom_exception_handler(api, client):
 
 
 def test_404_is_returned_for_nonexistent_static_file(client):
-    assert client.get("http://testserver/main.css").status_code == 404
+    assert client.get(f"http://testserver/static/{FILE_NAME}").status_code == 404
+
+
+def test_assets_are_served(tmpdir_factory):  # tmpdir_factory is a pytest buitl-in
+    # given: create a static file
+    static_dir = tmpdir_factory.mktemp("static")
+    _create_static(static_dir)
+    api = API(static_dir=str(static_dir))
+    client = api.test_session()
+
+    # when
+    response = client.get(f"http://testserver/static/{FILE_DIR}/{FILE_NAME}")
+
+    # than
+    assert response.status_code == 200
+    assert response.text == FILE_CONTENTS
+
+
+def test_middleware_methods_are_called(api, client):
+    process_request_called = False
+    process_response_called = False
+    
+    class CallMiddlewareMethods(Middleware):
+        def __init__(self, app):
+            super().__init__(app)
+
+        def process_request(self, req):
+            nonlocal process_request_called
+            process_request_called = True
+
+        def process_response(self, req, resp):
+            nonlocal process_response_called
+            process_response_called = True
+
+    api.add_middleware(CallMiddlewareMethods)
+
+    @api.route("/")
+    def index(req, resp):
+        resp.text = "YOLO"
+
+    client.get("http://testserver/")
+
+    assert process_request_called is True
+    assert process_response_called is True
 
 
 

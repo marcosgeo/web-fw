@@ -10,6 +10,8 @@ from wsgiadapter import WSGIAdapter as RequestsWSGIAdapter
 from jinja2 import Environment, FileSystemLoader
 from whitenoise import WhiteNoise
 
+from bumbo.middleware import Middleware
+
 
 class API:
     def __init__(self, templates_dir="bumbo/templates", static_dir="bumbo/static"):
@@ -23,8 +25,17 @@ class API:
 
         self.whitenoise = WhiteNoise(self.wsgi_app, root=static_dir)
 
+        self.middleware = Middleware(self)
+
     def __call__(self, environ, start_response):
-        return self.whitenoise(environ, start_response)
+        path_info = environ["PATH_INFO"]
+        if path_info.startswith("/static"):
+            environ["PATH_INFO"] = path_info[len("/static"):]
+            return self.whitenoise(environ, start_response)
+        return self.middleware(environ, start_response)
+
+    def add_middleware(self, middleware_cls):
+        self.middleware.add(middleware_cls)
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)

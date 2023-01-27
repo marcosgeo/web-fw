@@ -1,6 +1,7 @@
 # app.py
 
 from bumbo.api import API
+from bumbo.middleware import Middleware
 
 
 app = API()
@@ -10,6 +11,17 @@ def custom_exception_handler(request, response, exception_cls):
     response.text = str(exception_cls)
 
 app.add_exception_handler(custom_exception_handler)
+
+# custom middleware
+class SimpleCustomMiddleware(Middleware):
+    def process_request(self, req):
+        print("Processing request", req.url)
+
+    def process_response(self, req, resp):
+        print("Processing response", req.url, resp)
+
+app.add_middleware(SimpleCustomMiddleware)
+
 
 
 @app.route("/home")
