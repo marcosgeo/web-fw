@@ -10,12 +10,12 @@ from wsgiadapter import WSGIAdapter as RequestsWSGIAdapter
 from jinja2 import Environment, FileSystemLoader
 from whitenoise import WhiteNoise
 
-from bumbo.middleware import Middleware
-from bumbo.response import Response
+from .middleware import Middleware
+from .response import Response
 
 
 class API:
-    def __init__(self, templates_dir="bumbo/templates", static_dir="bumbo/static"):
+    def __init__(self, templates_dir="app/templates", static_dir="app/static"):
         self.routes = {}
 
         self.templates_env = Environment(
