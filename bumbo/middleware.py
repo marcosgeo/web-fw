@@ -1,6 +1,6 @@
 # middleware.py
 
-from webob import Request, Response
+from webob import Request
 
 
 class Middleware:
@@ -8,7 +8,7 @@ class Middleware:
         self.app = app
 
     # The WSGI entrypoint interface
-    def __call__(self, environ, start_response) -> Response:
+    def __call__(self, environ, start_response):
         request = Request(environ)
         response = self.app.handle_request(request)
         return response(environ, start_response)

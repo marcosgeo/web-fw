@@ -35,18 +35,10 @@ class API:
             return self.whitenoise(environ, start_response)
         return self.middleware(environ, start_response)
 
-    def add_middleware(self, middleware_cls):
-        self.middleware.add(middleware_cls)
-
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
         response = self.handle_request(request)
         return response(environ, start_response)
-
-    def template(self, template_name, context=None):
-        if context is None:
-            context = {}
-        return self.templates_env.get_template(template_name).render(**context)
 
     # django-like route
     def add_route(self, path, handler, allowed_methods=None):
@@ -97,11 +89,19 @@ class API:
                 self.exception_handler(request, response, e)
         return response
 
-    def add_exception_handler(self, exception_handler):
-        self.exception_handler = exception_handler
-
     def test_session(self, base_url="http://testserver"):
         session = RequestsSession()
         session.mount(prefix=base_url, adapter=RequestsWSGIAdapter(self))
         return session
+
+    def template(self, template_name, context=None):
+        if context is None:
+            context = {}
+        return self.templates_env.get_template(template_name).render(**context)
+
+    def add_exception_handler(self, exception_handler):
+        self.exception_handler = exception_handler
+
+    def add_middleware(self, middleware_cls):
+        self.middleware.add(middleware_cls)
 
