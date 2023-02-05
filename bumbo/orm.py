@@ -12,3 +12,14 @@ class Database:
         return []
 
 
+class Table:
+    pass
+
+
+class Column:
+    pass
+
+
+class ForeignKey:
+    pass
+
