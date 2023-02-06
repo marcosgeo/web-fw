@@ -15,7 +15,7 @@ def Author():
         name = Column(str)
         age = Column(int)
 
-    return Autor
+    return Author
 
 
 @pytest.fixture

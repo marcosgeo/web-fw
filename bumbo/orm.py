@@ -17,9 +17,23 @@ class Table:
 
 
 class Column:
-    pass
+    def __init__(self, column_type):
+        self.type = column_type
+
+    @property
+    def sql_type(self):
+        SQLITE_TYPE_MAP = {
+            int: "INTEGER",
+            float: "REAL",
+            str: "TEXT",
+            bytes: "BLOB",
+            bool: "INTEGER",
+        }
+        return SQLITE_TYPE_MAP[self.type]
 
 
 class ForeignKey:
-    pass
+    def __init__(self, table):
+        self.table = table
+
 
