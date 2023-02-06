@@ -7,32 +7,11 @@ import pytest
 from bumbo.orm import Database, Table, Column, ForeignKey
 
 
-# fixtures
-
-@pytest.fixture
-def Author():
-    class Author(Table):
-        name = Column(str)
-        age = Column(int)
-
-    return Author
-
-
-@pytest.fixture
-def Book(Author):
-    class Book(Table):
-        title = Column(str)
-        published = Column(bool)
-        author = ForeignKey(Author)
-
-    return Book
-
+db_file = "./orm_test.db"
 
 # tests
 
-def test_create_db():
-    db = Database("./orm_test.db")
-
+def test_create_db(db):
     assert isinstance(db.conn, sqlite3.Connection)
     assert db.tables == []
 
@@ -44,4 +23,23 @@ def test_define_tables(Author, Book):
     assert Author.name.sql_type == "TEXT"
     assert Author.age.sql_type == "INTEGER"
 
+
+def test_create_tables(db, Author, Book):
+    assert Author._get_create_sql() == \
+        "CREATE TABLE IF NOT EXISTS author (" \
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, " \
+        "age INTEGER, " \
+        "name TEXT" \
+        ");"
+
+    assert Book._get_create_sql() == \
+        "CREATE TABLE IF NOT EXISTS book (" \
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, " \
+        "author_id INTEGER, " \
+        "published INTEGER, " \
+        "title TEXT" \
+        ");"
+
+    for table in ("author", "book"):
+        assert table in db.tables
 
