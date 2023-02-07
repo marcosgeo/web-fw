@@ -15,6 +15,12 @@ class Database:
 
     def create(self, table):
         self.conn.execute(table._get_create_sql())
+    
+    def save(self, instance):
+        sql, values = instance._get_insert_sql()
+        cursor = self.conn.execute(sql, values)
+        instance._data["id"] = cursor.lastrowid
+        self.conn.commit()
 
 
 class Table:
@@ -46,6 +52,34 @@ class Table:
         fields_str = ", ".join(fields_lst)
         name = cls.__name__.lower()
         return CREATE_TABLE_SQL.format(name=name, fields=fields_str)
+
+    def _get_insert_sql(self):
+        INSERT_SQL = "INSERT INTO {name} ({fields}) VALUES ({placeholders});"
+        cls = self.__class__
+        fields = []
+        placeholders = []
+        values = []
+
+        for name, field_type in inspect.getmembers(cls):
+            if isinstance(field_type, Column):
+                fields.append(name)
+                values.append(getattr(self, name))
+                placeholders.append("?")
+            elif isinstance(field_type, ForeignKey):
+                fields.append(name + "_id")
+                values.append(getattr(self, name).id)
+                placeholders.append("?")
+
+        fields = ", ".join(fields)
+        placeholders = ", ".join(placeholders)
+
+        sql = INSERT_SQL.format(
+            name=cls.__name__.lower(),
+            fields=fields,
+            placeholders=placeholders
+        )
+        print(sql, values)
+        return sql, values
 
 
 class Column:
