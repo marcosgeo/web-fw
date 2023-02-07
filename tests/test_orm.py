@@ -2,10 +2,6 @@
 
 import sqlite3
 
-import pytest
-
-from bumbo.orm import Database, Table, Column, ForeignKey
-
 
 db_file = "./orm_test.db"
 
@@ -25,6 +21,8 @@ def test_define_tables(Author, Book):
 
 
 def test_create_tables(db, Author, Book):
+    db.create(Author)
+    db.create(Book)
     assert Author._get_create_sql() == \
         "CREATE TABLE IF NOT EXISTS author (" \
         "id INTEGER PRIMARY KEY AUTOINCREMENT, " \
