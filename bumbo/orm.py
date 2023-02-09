@@ -24,7 +24,16 @@ class Database:
 
 
     def all(self, table):
-        pass
+        sql, fields = table._get_select_all_sql()
+
+        result = []
+        for row in self.conn.execute(sql).fetchall():
+            instance = table()
+            for field, value in zip(fields, row):
+                setattr(instance, field, value)
+            result.append(instance)
+        print(f"all: {sql}\n{result}")
+        return result
 
 
 class Table:
@@ -56,6 +65,25 @@ class Table:
         fields_str = ", ".join(fields_lst)
         name = cls.__name__.lower()
         return CREATE_TABLE_SQL.format(name=name, fields=fields_str)
+
+
+    @classmethod
+    def _get_select_all_sql(cls):
+        SELECT_ALL_SQL = "SELECT {fields} FROM {name};"
+
+        fields = ['id']
+        for name, field_type in inspect.getmembers(cls):
+            if isinstance(field_type, Column):
+                fields.append(name)
+            elif isinstance(field_type, ForeignKey):
+                fields.append(name + "_id")
+
+        sql = SELECT_ALL_SQL.format(
+            name=cls.__name__.lower(),
+            fields=", ".join(fields)
+        )
+        return sql, fields
+
 
     def _get_insert_sql(self):
         INSERT_SQL = "INSERT INTO {name} ({fields}) VALUES ({placeholders});"

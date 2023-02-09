@@ -91,7 +91,7 @@ def test_query_all_authors(db, Author):
     )
     assert len(authors) == 2
     assert type(authors[0]) == Author
-    assert {a.age for a in authors} == {23, 43}
+    assert {a.age for a in authors} == {33, 37}
     assert {a.name for a in authors} == {"John Doe", "Vik Star"}
 
 
