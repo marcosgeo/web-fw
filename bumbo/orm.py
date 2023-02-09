@@ -23,6 +23,10 @@ class Database:
         self.conn.commit()
 
 
+    def all(self, table):
+        pass
+
+
 class Table:
     def __init__(self, **kwargs):
         self._data = {
@@ -78,7 +82,7 @@ class Table:
             fields=fields,
             placeholders=placeholders
         )
-        print(sql, values)
+        print(sql, values, sep="\n")
         return sql, values
 
 
