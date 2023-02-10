@@ -35,6 +35,9 @@ class Database:
         print(f"all: {sql}\n{result}")
         return result
 
+    def get(self, table, id):
+        pass
+
 
 class Table:
     def __init__(self, **kwargs):
@@ -112,6 +115,10 @@ class Table:
         )
         print(sql, values, sep="\n")
         return sql, values
+
+    @classmethod
+    def _get_select_where_sql(cls, id):
+        pass
 
 
 class Column:
