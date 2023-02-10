@@ -36,7 +36,17 @@ class Database:
         return result
 
     def get(self, table, id):
-        pass
+        sql, fields, params = table._get_select_where_sql(id=id)
+
+        row = self.conn.execute(sql, params).fetchone()
+        if not row:
+            raise Exception(f"{table.__name__} instance with id {id} does not exists")
+
+        instance = table()
+        for field, value in zip(fields, row):
+            setattr(instance, field, value)
+
+        return instance
 
 
 class Table:
@@ -53,6 +63,11 @@ class Table:
         if key in _data:
             return _data[key]
         return super().__getattribute__(key)
+
+    def __setattr__(self, key, value):
+        super().__setattr__(key, value)
+        if key in self._data:
+            self._data[key] = value
 
     @classmethod
     def _get_create_sql(cls):
@@ -118,7 +133,21 @@ class Table:
 
     @classmethod
     def _get_select_where_sql(cls, id):
-        pass
+        SELECT_WHERE_SQL = "SELECT {fields} FROM {name} WHERE id = ?;"
+        fields = ["id"]
+        for name, field_type in inspect.getmembers(cls):
+            if isinstance(field_type, Column):
+                fields.append(name)
+            elif isinstance(field_type, ForeignKey):
+                fields.append(name + "_id")
+
+        sql = SELECT_WHERE_SQL.format(
+            name=cls.__name__.lower(),
+            fields=", ".join(fields)
+        )
+        params = [id]
+
+        return sql, fields, params
 
 
 class Column:
