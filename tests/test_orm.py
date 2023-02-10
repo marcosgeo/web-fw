@@ -95,5 +95,23 @@ def test_query_all_authors(db, Author):
     assert {a.name for a in authors} == {"John Doe", "Vik Star"}
 
 
+def test_get_author(db, Author):
+    db.create(Author)
+    roman = Author(name="John Doe", age=43)
+    db.save(roman)
+
+    john_from_db = db.get(Author, id=1)
+
+    assert Author._get_select_where_sql(id=1) == (
+        "SELECT id, age, name FROM author WHERE id = ?;",
+        ["id", "age", "name"],
+        [1]
+    )
+    assert type(john_from_db) == Author
+    assert john_from_db.age == 43
+    assert john_from_db.name == "John Doe"
+    assert john_from_db.id == 1
+
+
 # EOF
 
