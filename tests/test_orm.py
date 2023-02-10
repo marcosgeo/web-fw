@@ -113,5 +113,24 @@ def test_get_author(db, Author):
     assert john_from_db.id == 1
 
 
+def test_get_book(db, Author, Book):
+    db.create(Author)
+    db.create(Book)
+    john = Author(name="John Doe", age=43)
+    arash = Author(name="Arash Kun", age=50)
+    book = Book(title="Building an ORM", published=False, author=john)
+    book2 = Book(title="Scoring Goals", published=True, author=arash)
+    db.save(john)
+    db.save(arash)
+    db.save(book)
+    db.save(book2)
+
+    book_from_db = db.get(Book, 2)
+
+    assert book_from_db.title == "Scoring Goals"
+    assert book_from_db.author.name == "Arash Kun"
+    assert book_from_db.author.id == 2
+
+
 # EOF
 
