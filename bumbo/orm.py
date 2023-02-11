@@ -30,6 +30,10 @@ class Database:
         for row in self.conn.execute(sql).fetchall():
             instance = table()
             for field, value in zip(fields, row):
+                if field.endswith('_id'):
+                    field = field[:-3]
+                    model_fk = getattr(table, field)
+                    value = self.get(model_fk.table, id=value)  # value == instance_fk
                 setattr(instance, field, value)
             result.append(instance)
         print(f"all: {sql}\n{result}")
@@ -44,6 +48,13 @@ class Database:
 
         instance = table()
         for field, value in zip(fields, row):
+            if field.endswith('_id'):
+                field = field[:-3]
+                #print(f"get\ntable: {table}   field: {field}")
+                model_fk = getattr(table, field)
+                #print(f"get\nmodel_fk: {model_fk}    model_fk.table: {model_fk.table}")
+                value = self.get(model_fk.table, id=value)  # value == instance_fk
+                #print(f"value (instance_fk): {value}; id: {value.id}; name: {value.name}")
             setattr(instance, field, value)
 
         return instance
@@ -167,6 +178,7 @@ class Column:
 
 
 class ForeignKey:
+    # table == model
     def __init__(self, table):
         self.table = table
 

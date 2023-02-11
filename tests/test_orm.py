@@ -132,5 +132,23 @@ def test_get_book(db, Author, Book):
     assert book_from_db.author.id == 2
 
 
+def test_query_all_books(db, Author, Book):
+    db.create(Author)
+    db.create(Book)
+    john = Author(name="John Doe", age=43)
+    arash = Author(name="Arash Kun", age=50)
+    book = Book(title="Building an ORM", published=False, author=john)
+    book2 = Book(title="Socring Goals", published=True, author=arash)
+    db.save(john)
+    db.save(arash)
+    db.save(book)
+    db.save(book2)
+
+    books = db.all(Book)
+
+    assert len(books) == 2
+    assert books[1].author.name == "Arash Kun"
+
+
 # EOF
 
