@@ -2,10 +2,13 @@
 
 import sqlite3
 
+import pytest
 
 db_file = "./orm_test.db"
 
+
 # tests
+
 
 def test_create_db(db):
     assert isinstance(db.conn, sqlite3.Connection)
@@ -170,7 +173,7 @@ def test_delete_author(db, Author):
     john = Author(name="John Doe", age=43)
     db.save(john)
 
-    db.delete(Author, id=1)
+    db.delete(Author, fk=1)
 
     with pytest.raises(Exception):
         db.get(Author, 1)
