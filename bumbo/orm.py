@@ -59,6 +59,9 @@ class Database:
 
         return instance
 
+    def update(self, instance):
+        pass
+
 
 class Table:
     def __init__(self, **kwargs):
@@ -159,6 +162,9 @@ class Table:
         params = [id]
 
         return sql, fields, params
+
+    def _get_update_sql(self):
+        pass
 
 
 class Column:
