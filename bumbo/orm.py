@@ -60,7 +60,9 @@ class Database:
         return instance
 
     def update(self, instance):
-        pass
+        sql, values = instance._get_update_sql()
+        self.conn.execute(sql, values)
+        self.conn.commit()
 
 
 class Table:
@@ -164,8 +166,27 @@ class Table:
         return sql, fields, params
 
     def _get_update_sql(self):
-        pass
+        UPDATE_SQL = "UPDATE {name} SET {fields} WHERE id = ?"
+        cls = self.__class__
+        fields = []
+        values = []
 
+        for name, field_type in inspect.getmembers(cls):
+            if isinstance(field_type, Column):
+                fields.append(name)
+                values.append(getattr(self, name))
+            elif isinstance(field_type, ForeignKey):
+                fields.append(name + "_id")
+                values.append(getattr(self, name).id)
+
+        values.append(getattr(self, 'id'))
+
+        sql = UPDATE_SQL.format(
+            name=cls.__name__.lower(),
+            fields=", ".join([f"{field} = ?" for field in fields])
+        )
+
+        return sql, values
 
 class Column:
     def __init__(self, column_type):
