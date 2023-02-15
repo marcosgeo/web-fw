@@ -12,7 +12,7 @@ DESCRIPTION = "Bumbo Python Web Framework built for learning purposes."
 EMAIL = "marcosgeo@yahoo.com"
 AUTHOR = "Antonio Marcos"
 REQUIRES_PYTHON = ">=3.6.0"
-VERSION = "0.0.5"
+VERSION = "0.0.6"
 
 # Which packages are required for this module to be executed?
 REQUIRED = [
