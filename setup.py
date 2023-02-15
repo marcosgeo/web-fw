@@ -12,7 +12,7 @@ DESCRIPTION = "Bumbo Python Web Framework built for learning purposes."
 EMAIL = "marcosgeo@yahoo.com"
 AUTHOR = "Antonio Marcos"
 REQUIRES_PYTHON = ">=3.6.0"
-VERSION = "0.0.6"
+VERSION = "0.0.7"
 
 # Which packages are required for this module to be executed?
 REQUIRED = [
@@ -57,7 +57,7 @@ setup(
     author=AUTHOR,
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
-    packages=find_packages(exclude=["app/*"]),
+    packages=find_packages(exclude=["app*", "tests*"]),
     install_requires=REQUIRED,
     include_package_data=True,
     license="MIT",
